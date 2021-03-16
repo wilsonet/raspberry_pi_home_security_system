@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Testing for telebot package.
+Testing bot package.
 """
 import unittest
 import sys
@@ -8,7 +8,7 @@ import os
 import site
 
 site.addsitedir('..')
-from lib.telebot import Telebot
+from lib.bot import Bot
 from config import TOKEN_ID, REGISTRATION_FOLDER, CHAT_ID
 
 if TOKEN_ID == 'Your_token_id' or not os.path.exists(REGISTRATION_FOLDER):
@@ -17,50 +17,38 @@ if TOKEN_ID == 'Your_token_id' or not os.path.exists(REGISTRATION_FOLDER):
 
 
 class TestBotMethods(unittest.TestCase):
-    """
-    Test for the Telebot class
-    """
+    """Test Bot class."""
 
     @classmethod
     def setUpClass(cls):
-        cls.bot = Telebot(TOKEN_ID, CHAT_ID)
-        cls.chat_id = CHAT_ID
+        cls.bot = Bot(TOKEN_ID, CHAT_ID)
+        cls.chat_id = int(CHAT_ID)
 
     def authorised(self):
-        """
-        Checks if the bot accepts other chats_id than the authorized one
-        """
+        """Checks if the bot accepts other chats_id than the authorized."""
         self.assertEqual(self.bot._authorized_chat_id(18545452), False, "The method self.bot._authorized_chat_id "        
                                                                         "doesn't work")
 
     def test_bot_status(self):
-        """
-        Test method bot.is_listen
-        """
+        """Test method bot.is_listen."""
         self.assertEqual(self.bot.is_listen, 0, "Bot is listen")
 
-    def test_set_start(self):
-        """
-        Test setter bot.is_listen start
-        """
-        self.bot.is_listen = True
-        self.assertEqual(self.bot.is_listen, 1, "Cannot set Bot.is_listen to ON")
+    def test_set_start_listen(self):
+        """Test setter bot.start_listen."""
+        self.bot.start_listen()
+        self.assertEqual(self.bot.is_listen, True, "Cannot set Bot.is_listen to ON")
 
-    def test_set_stop(self):
-        """
-        Test setter bot.is_listen stop
-        """
-        self.bot.is_listen = False
+    def test_set_stop_listen(self):
+        """Test setter bot.stop_listen."""
+        self.bot.stop_listen()
         self.assertEqual(self.bot.is_listen, 0, "Cannot set Bot.is_listen to OFF")
 
-    def test_handler(self):
-        """
-        Test handler
-        """
+    def test_add_command(self):
+        """Test decorator add_command"""
 
-        @self.bot.handler("/testsuite")
-        def on_test():
-            return str("Test handler")
+        @self.bot.add_command("/testsuite")
+        def on_test(chat_id):
+            return chat_id
 
         msg = {'message_id': 305,
                'chat': {'id': self.chat_id,
@@ -70,16 +58,14 @@ class TestBotMethods(unittest.TestCase):
                'date': 1586725459,
                'text': '/testsuite',
                'entities': [{'offset': 0, 'length': 6, 'type': 'bot_command'}]}
-        self.assertEqual(self.bot._postreceive(msg), "Test handler", "Handler doesn't function")
+        self.assertEqual(self.bot._post(msg), self.chat_id, "Decorator add_command doesn't function")
 
     def test_send_message(self):
-        """
-        Test send message
-        """
+        """Test send message."""
 
-        @self.bot.handler("/message")
-        def on_test():
-            return self.bot.send_message("Test send message")
+        @self.bot.add_command("/message")
+        def on_test(chat_id):
+            return self.bot.send_message(chat_id, "Test send message")
 
         msg = {'message_id': 305,
                'chat': {'id': self.chat_id,
@@ -89,16 +75,14 @@ class TestBotMethods(unittest.TestCase):
                'date': 1586725459,
                'text': '/message',
                'entities': [{'offset': 0, 'length': 6, 'type': 'bot_command'}]}
-        self.assertEqual(self.bot._postreceive(msg), None, "Send message doesn't function")
+        self.assertEqual(self.bot._post(msg), None, "Send message doesn't function")
 
-    def test_handler_photo(self):
-        """
-        Test send photo
-        """
+    def test_send_photo(self):
+        """Test send photo."""
 
-        @self.bot.handler("/photo")
-        def on_test_photo():
-            return self.bot.send_photo('testsuite/logo-ok.png', "Testsuite")
+        @self.bot.add_command("/photo")
+        def on_test_photo(chat_id):
+            return self.bot.send_photo(chat_id, 'testsuite/logo-ok.png', "Testsuite")
 
         msg = {'message_id': 305,
                'chat': {'id': self.chat_id,
@@ -107,7 +91,7 @@ class TestBotMethods(unittest.TestCase):
                         'type': 'private'},
                'date': 1586725459, 'text': '/photo',
                'entities': [{'offset': 0, 'length': 6, 'type': 'bot_command'}]}
-        self.assertEqual(self.bot._postreceive(msg), None, "Send photo doesn't function")
+        self.assertEqual(self.bot._post(msg), None, "Send photo doesn't function")
 
 
 if __name__ == '__main__':
