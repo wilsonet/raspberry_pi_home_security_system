@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-"""
-Home surveillance application
-"""
+"""Home security system."""
 import time
 
 

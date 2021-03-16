@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-"""
-Testing bot package.
-"""
+"""Testing bot package."""
 import unittest
 import sys
 import os
