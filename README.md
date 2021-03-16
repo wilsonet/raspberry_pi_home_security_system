@@ -1,7 +1,9 @@
-# Home security system with Raspberry Pi and sending notifications with a Telegram bot 
+# Home security system with Raspberry Pi and control with a Telegram bot 
 [![CI](https://github.com/m0by314/Raspberry_Pi_home_security_system/workflows/CI/badge.svg?event=push)](https://github.com/m0by314/Raspberry_Pi_home_security_system/actions?query=workflow%3ACI)
 
-Tutorial to build a home security system with Raspberry Pi and sending notifications with a Telegram bot.
+Build a home security system with Raspberry Pi and control with a Telegram bot.
+
+The Telegram bot only accept the authorized chat_id. 
 
 ### How it works
 
@@ -34,7 +36,7 @@ After this action reboot the raspberry
  ```
      # Variable to configure
      TOKEN_ID = 'Your token_id'
-     CHAT_ID = 'Your chat_id'
+     CHAT_ID = 'Your chat_id, mandatory for the bot only accept this chat'
 ```
 
 ### Installing 
@@ -58,11 +60,11 @@ sudo make install
 
   * By default, the duration of the video is set to 60s. If you want change this, you need to modify the VIDEO_TIME constant in `config.py`    		
 
-  * It's possible to add other commands to the bot in `app.py` with the decorator @bot.handler()		
+  * It's possible to add other commands to the bot in `app.py` with the decorator @bot.add_command()		
  ```		
- @bot.handler("/hello")		
- def func_hello():		
-     return bot.send_message("Hello World")		
+ @bot.add_command("/hello")
+ def on_video(chat_id, *args):
+     return bot.send_message(chat_id, "Hello " + args[0])
  ```
  
 ### Testing
